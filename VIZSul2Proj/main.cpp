@@ -6,35 +6,68 @@
 using namespace cv;
 using namespace std;
 
-int main()
-{
-	//test branch
-	Mat image;
-	Point lineStart;
-	Point lineEnd;
-	lineEnd.x = 20;
-	lineEnd.y = 20;
-	lineStart.x = 100;
-	lineStart.y = 100;
-	//image = imread(, IMREAD_COLOR); // Read the file
-	image = imread("Autobus.bmp", IMREAD_COLOR);
+Mat applyLaplace(Mat src) {
+	Mat  src_gray, dst;
+	int kernel_size = 3;
+	int scale = 1;
+	int delta = 0;
+	int ddepth = CV_16S;
 
-	if (!image.data) // Check for invalid input
-	{
+	/// Remove noise by blurring with a Gaussian filter
+	GaussianBlur(src, src, Size(3, 3), 0, 0, BORDER_DEFAULT);
+
+	/// Convert the image to grayscale
+	cvtColor(src, src_gray, CV_BGR2GRAY);
+
+	/// Apply Laplace function
+	Mat abs_dst;
+
+	Laplacian(src_gray, dst, ddepth, kernel_size, scale, delta, BORDER_DEFAULT);
+	convertScaleAbs(dst, abs_dst);
+
+	return abs_dst;
+
+}
+
+cv::Mat applyLaplaceProg(cv::Mat src) {
+	cv::Mat changed;
+	cvtColor(src, src, CV_BGR2GRAY);
+	changed = src;
+	return changed;
+}
+
+cv::Mat substractImgs(cv::Mat img1, cv::Mat img2) {
+
+}
+
+int main(){
+	//test branch
+	Mat imageOrig, imgLaplaceCV, imagLaplaceProg;
+
+	imageOrig = imread("Autobus.bmp", IMREAD_COLOR);
+
+	if (!imageOrig.data){ // Check for invalid input
 		cout << "Could not open or find the image" << std::endl;
 		return -1;
 	}
 
-	namedWindow("Display window", WINDOW_AUTOSIZE); // Create a window for display.
-	imshow("Display window", image); // Show our image inside it.
-	line(image, lineStart, lineEnd, Scalar(0, 255, 0), 5, 8, 0);
-	imshow("Display window", image); // Show our image inside it.
-									 //zapisanie obrazka so suboru
+	namedWindow("Original picture", WINDOW_AUTOSIZE);
+	namedWindow("OpenCV laplace", WINDOW_AUTOSIZE);
+	namedWindow("Programed laplace", WINDOW_AUTOSIZE);
+
+	imgLaplaceCV = applyLaplace(imageOrig);
+	imagLaplaceProg = applyLaplaceProg(imageOrig);
+
+	imshow("Original picture", imageOrig); // Show our image inside it.
+	imshow("OpenCV laplace", imgLaplaceCV); // Show our image inside it.
+	imshow("Programed laplace", imagLaplaceProg); // Show our image inside it.
+
+	//zapisanie obrazka so suboru
 	vector<int> compression_params;
 	compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
 	compression_params.push_back(9);
 	try {
-		imwrite("vystup.png", image, compression_params);
+		imwrite("vystup.png", imagLaplaceProg, compression_params);
 	}
 	catch (runtime_error& ex) {
 		fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
