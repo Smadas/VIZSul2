@@ -6,6 +6,9 @@
 using namespace cv;
 using namespace std;
 
+#define LAP_KERNEL_OUT 1
+#define LAP_KERNEL_IN -4
+
 Mat applyLaplace(Mat src) {
 	Mat  src_gray, dst;
 	int kernel_size = 3;
@@ -29,15 +32,58 @@ Mat applyLaplace(Mat src) {
 
 }
 
+unsigned char scalePixelVal(int pixelValue) {
+	if (pixelValue < 0) {
+		return 0;
+	}
+	if (pixelValue > 255) {
+		return 255;
+	}
+	
+	return (unsigned char)pixelValue;
+}
+
+unsigned char computeOnePixel(cv::Mat src, cv::Mat changed, int i, int j) {
+	int pixelLaplaceVal = 0;
+	pixelLaplaceVal = src.at<uchar>(j, i) * LAP_KERNEL_IN;
+	if (j - 1 > -1) {
+		pixelLaplaceVal += src.at<uchar>(j - 1, i)*LAP_KERNEL_OUT;
+	}
+	if (i - 1 > -1) {
+		pixelLaplaceVal += src.at<uchar>(j, i - 1)*LAP_KERNEL_OUT;
+	}
+	if (j + 1 < src.size().height) {
+		pixelLaplaceVal += src.at<uchar>(j + 1, i)*LAP_KERNEL_OUT;
+	}
+	if (i + 1 < src.size().width) {
+		pixelLaplaceVal += src.at<uchar>(j, i + 1)*LAP_KERNEL_OUT;
+	}
+	return scalePixelVal(pixelLaplaceVal);
+}
+
 cv::Mat applyLaplaceProg(cv::Mat src) {
 	cv::Mat changed;
 	cvtColor(src, src, CV_BGR2GRAY);
-	changed = src;
+
+	changed = src.clone();
+	
+	for (int i = 0; i < src.size().width; i++)
+	{
+		for (int j = 0; j < src.size().height; j++)
+		{
+			changed.at<uchar>(j, i) = computeOnePixel(src, changed, i, j);
+		}
+	}
 	return changed;
 }
 
 cv::Mat substractImgs(cv::Mat img1, cv::Mat img2) {
+	cv::Mat result;
+	return result;
+}
 
+bool imgMatch(cv::Mat img1, cv::Mat img2) {
+	return false;
 }
 
 int main(){
