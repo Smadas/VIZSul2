@@ -6,8 +6,8 @@
 using namespace cv;
 using namespace std;
 
-#define LAP_KERNEL_OUT 1
-#define LAP_KERNEL_IN -4
+#define LAP_KERNEL_OUTER 1
+#define LAP_KERNEL_INNER -4
 
 Mat applyLaplace(Mat src) {
 	Mat  src_gray, dst;
@@ -17,7 +17,7 @@ Mat applyLaplace(Mat src) {
 	int ddepth = CV_16S;
 
 	/// Remove noise by blurring with a Gaussian filter
-	GaussianBlur(src, src, Size(3, 3), 0, 0, BORDER_DEFAULT);
+	//GaussianBlur(src, src, Size(3, 3), 0, 0, BORDER_DEFAULT);
 
 	/// Convert the image to grayscale
 	cvtColor(src, src_gray, CV_BGR2GRAY);
@@ -45,18 +45,18 @@ unsigned char scalePixelVal(int pixelValue) {
 
 unsigned char computeOnePixel(cv::Mat src, cv::Mat changed, int i, int j) {
 	int pixelLaplaceVal = 0;
-	pixelLaplaceVal = src.at<uchar>(j, i) * LAP_KERNEL_IN;
+	pixelLaplaceVal = src.at<uchar>(j, i) * LAP_KERNEL_INNER;
 	if (j - 1 > -1) {
-		pixelLaplaceVal += src.at<uchar>(j - 1, i)*LAP_KERNEL_OUT;
+		pixelLaplaceVal += src.at<uchar>(j - 1, i)*LAP_KERNEL_OUTER;
 	}
 	if (i - 1 > -1) {
-		pixelLaplaceVal += src.at<uchar>(j, i - 1)*LAP_KERNEL_OUT;
+		pixelLaplaceVal += src.at<uchar>(j, i - 1)*LAP_KERNEL_OUTER;
 	}
 	if (j + 1 < src.size().height) {
-		pixelLaplaceVal += src.at<uchar>(j + 1, i)*LAP_KERNEL_OUT;
+		pixelLaplaceVal += src.at<uchar>(j + 1, i)*LAP_KERNEL_OUTER;
 	}
 	if (i + 1 < src.size().width) {
-		pixelLaplaceVal += src.at<uchar>(j, i + 1)*LAP_KERNEL_OUT;
+		pixelLaplaceVal += src.at<uchar>(j, i + 1)*LAP_KERNEL_OUTER;
 	}
 	return scalePixelVal(pixelLaplaceVal);
 }
