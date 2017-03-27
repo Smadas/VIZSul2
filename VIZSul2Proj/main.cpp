@@ -89,37 +89,44 @@ bool imgMatch(cv::Mat img1, cv::Mat img2) {
 int main(){
 	//test branch
 	Mat imageOrig, imgLaplaceCV, imagLaplaceProg;
+	VideoCapture cap(0);
+	//imageOrig = imread("Autobus.bmp", IMREAD_COLOR);
 
-	imageOrig = imread("Autobus.bmp", IMREAD_COLOR);
+	while (1){
+		cap.grab();
+		cap.retrieve(imageOrig, CV_CAP_OPENNI_BGR_IMAGE);
 
-	if (!imageOrig.data){ // Check for invalid input
-		cout << "Could not open or find the image" << std::endl;
-		return -1;
+		if (!imageOrig.data) { // Check for invalid input
+			cout << "Could not open or find the image" << std::endl;
+			return -1;
+		}
+
+		namedWindow("Original picture", WINDOW_AUTOSIZE);
+		namedWindow("OpenCV laplace", WINDOW_AUTOSIZE);
+		namedWindow("Programed laplace", WINDOW_AUTOSIZE);
+
+		imgLaplaceCV = applyLaplace(imageOrig);
+		imagLaplaceProg = applyLaplaceProg(imageOrig);
+
+		imshow("Original picture", imageOrig); // Show our image inside it.
+		imshow("OpenCV laplace", imgLaplaceCV); // Show our image inside it.
+		imshow("Programed laplace", imagLaplaceProg); // Show our image inside it.
+
+													  //zapisanie obrazka so suboru
+		vector<int> compression_params;
+		compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+		compression_params.push_back(9);
+		try {
+			imwrite("vystup.png", imagLaplaceProg, compression_params);
+		}
+		catch (runtime_error& ex) {
+			fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
+			return 1;
+		}
+
+		waitKey(20); // Wait for a keystroke in the window
+
 	}
 
-	namedWindow("Original picture", WINDOW_AUTOSIZE);
-	namedWindow("OpenCV laplace", WINDOW_AUTOSIZE);
-	namedWindow("Programed laplace", WINDOW_AUTOSIZE);
-
-	imgLaplaceCV = applyLaplace(imageOrig);
-	imagLaplaceProg = applyLaplaceProg(imageOrig);
-
-	imshow("Original picture", imageOrig); // Show our image inside it.
-	imshow("OpenCV laplace", imgLaplaceCV); // Show our image inside it.
-	imshow("Programed laplace", imagLaplaceProg); // Show our image inside it.
-
-	//zapisanie obrazka so suboru
-	vector<int> compression_params;
-	compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-	compression_params.push_back(9);
-	try {
-		imwrite("vystup.png", imagLaplaceProg, compression_params);
-	}
-	catch (runtime_error& ex) {
-		fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
-		return 1;
-	}
-
-	waitKey(0); // Wait for a keystroke in the window
 	return 0;
 }
