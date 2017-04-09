@@ -97,10 +97,12 @@ bool imgMatch(cv::Mat img1, cv::Mat img2) {
 int main(){
 	//test branch
 	Mat imageOrig, imgLaplaceCV, imagLaplaceProg;
+	VideoCapture cap(0);
+	//imageOrig = imread("Autobus.bmp", IMREAD_COLOR);
 
 	imageOrig = imread("kvet.jpg", IMREAD_COLOR);
 
-	if (!imageOrig.data){ // Check for invalid input
+	if (!imageOrig.data) { // Check for invalid input
 		cout << "Could not open or find the image" << std::endl;
 		return -1;
 	}
@@ -116,7 +118,7 @@ int main(){
 	imshow("OpenCV laplace", imgLaplaceCV); // Show our image inside it.
 	imshow("Programed laplace", imagLaplaceProg); // Show our image inside it.
 
-	//zapisanie obrazka so suboru
+													//zapisanie obrazka so suboru
 	vector<int> compression_params;
 	compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
 	compression_params.push_back(9);
@@ -129,5 +131,6 @@ int main(){
 	}
 
 	waitKey(0); // Wait for a keystroke in the window
+
 	return 0;
 }
