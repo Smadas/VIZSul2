@@ -16,9 +16,6 @@ Mat applyLaplace(Mat src) {
 	int delta = 0;
 	int ddepth = CV_16S;
 
-	/// Remove noise by blurring with a Gaussian filter
-	//GaussianBlur(src, src, Size(3, 3), 0, 0, BORDER_DEFAULT);
-
 	/// Convert the image to grayscale
 	cvtColor(src, src_gray, CV_BGR2GRAY);
 
@@ -28,8 +25,7 @@ Mat applyLaplace(Mat src) {
 	Laplacian(src_gray, dst, ddepth, kernel_size, scale, delta, BORDER_DEFAULT);
 	convertScaleAbs(dst, abs_dst);
 
-	return abs_dst;
-
+	return  abs_dst;
 }
 
 unsigned char scalePixelVal(int pixelValue) {
@@ -40,6 +36,18 @@ unsigned char scalePixelVal(int pixelValue) {
 		return 255;
 	}
 	
+	return (unsigned char)pixelValue;
+}
+
+unsigned char scalePixelValSymmetric(int pixelValue)
+{
+	if (pixelValue < 0) {
+		pixelValue = pixelValue*(-1);
+	}
+	if (pixelValue > 255) {
+		return 255;
+	}
+
 	return (unsigned char)pixelValue;
 }
 
@@ -58,7 +66,7 @@ unsigned char computeOnePixel(cv::Mat src, cv::Mat changed, int i, int j) {
 	if (i + 1 < src.size().width) {
 		pixelLaplaceVal += src.at<uchar>(j, i + 1)*LAP_KERNEL_OUTER;
 	}
-	return scalePixelVal(pixelLaplaceVal);
+	return scalePixelValSymmetric(pixelLaplaceVal);
 }
 
 cv::Mat applyLaplaceProg(cv::Mat src) {
@@ -90,7 +98,7 @@ int main(){
 	//test branch
 	Mat imageOrig, imgLaplaceCV, imagLaplaceProg;
 
-	imageOrig = imread("Autobus.bmp", IMREAD_COLOR);
+	imageOrig = imread("kvet.jpg", IMREAD_COLOR);
 
 	if (!imageOrig.data){ // Check for invalid input
 		cout << "Could not open or find the image" << std::endl;
