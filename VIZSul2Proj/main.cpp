@@ -11,7 +11,7 @@ using namespace std;
 #define SCALE_CONST 3
 
 Mat applyLaplace(Mat src) {
-	Mat  src_gray, dst;
+	Mat  src_gray, dst, abs_dst;
 	int kernel_size = 3;
 	int scale = 1;
 	int delta = 0;
@@ -21,8 +21,6 @@ Mat applyLaplace(Mat src) {
 	cvtColor(src, src_gray, CV_BGR2GRAY);
 
 	/// Apply Laplace function
-	Mat abs_dst;
-
 	Laplacian(src_gray, dst, ddepth, kernel_size, scale, delta, BORDER_DEFAULT);
 	convertScaleAbs(dst, abs_dst);
 
