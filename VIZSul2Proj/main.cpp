@@ -8,6 +8,7 @@ using namespace std;
 
 #define LAP_KERNEL_OUTER 1
 #define LAP_KERNEL_INNER -4
+#define SCALE_CONST 3
 
 Mat applyLaplace(Mat src) {
 	Mat  src_gray, dst;
@@ -41,6 +42,7 @@ unsigned char scalePixelVal(int pixelValue) {
 
 unsigned char scalePixelValSymmetric(int pixelValue)
 {
+	pixelValue *= SCALE_CONST;
 	if (pixelValue < 0) {
 		pixelValue = pixelValue*(-1);
 	}
@@ -85,20 +87,23 @@ cv::Mat applyLaplaceProg(cv::Mat src) {
 	return changed;
 }
 
-cv::Mat substractImgs(cv::Mat img1, cv::Mat img2) {
-	cv::Mat result;
-	return result;
-}
+bool writeImageToFile(cv::Mat img) {
+	vector<int> compression_params;
+	compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+	compression_params.push_back(9);
+	try {
+		imwrite("vystup.png", img, compression_params);
+	}
+	catch (runtime_error& ex) {
+		fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
+		return false;
+	}
 
-bool imgMatch(cv::Mat img1, cv::Mat img2) {
-	return false;
+	return true;
 }
 
 int main(){
-	//test branch
 	Mat imageOrig, imgLaplaceCV, imagLaplaceProg;
-	VideoCapture cap(0);
-	//imageOrig = imread("Autobus.bmp", IMREAD_COLOR);
 
 	imageOrig = imread("kvet.jpg", IMREAD_COLOR);
 
@@ -118,17 +123,8 @@ int main(){
 	imshow("OpenCV laplace", imgLaplaceCV); // Show our image inside it.
 	imshow("Programed laplace", imagLaplaceProg); // Show our image inside it.
 
-													//zapisanie obrazka so suboru
-	vector<int> compression_params;
-	compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-	compression_params.push_back(9);
-	try {
-		imwrite("vystup.png", imagLaplaceProg, compression_params);
-	}
-	catch (runtime_error& ex) {
-		fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
-		return 1;
-	}
+	//zapisanie obrazka do suboru
+	writeImageToFile(imagLaplaceProg);
 
 	waitKey(0); // Wait for a keystroke in the window
 
